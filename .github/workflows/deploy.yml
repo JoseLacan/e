@@ -31,7 +31,7 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      # Paso 5: Desplegar en GitHub Pages
+      # Paso 5: Desplegar en GitHub Page
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
