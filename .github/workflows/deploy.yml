@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # Cambia a la rama principal de tu proyecto si es necesario.
+      - main # Cambia si usas otra rama principal.
 
 jobs:
   build:
@@ -18,20 +18,26 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # Ajusta según tu proyecto.
+          node-version: '16' # Ajusta según tu versión de Node.js.
 
       # Paso 3: Instalar dependencias
       - name: Install Dependencies
         run: npm install
 
-      # Paso 4: Compilar archivos con Peggy y TypeScript
+      # Paso 4: Compilar los archivos necesarios
       - name: Compile Grammar with Peggy
         run: npm run compile
 
+      # Paso 5: Compilar el proyecto con TypeScript
       - name: Build Project
         run: npm run build
 
-      # Paso 5: Desplegar en GitHub Page
+      # Paso 6: Asegurar que el archivo index.html exista en el directorio de publicación
+      # GitHub Pages requiere un index.html para cargar el sitio.
+      - name: Copy index.html to dist
+        run: cp public/index.html dist/
+
+      # Paso 7: Desplegar en GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
