@@ -1,0 +1,39 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Cambia a la rama principal de tu proyecto si es necesario.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Clonar el repositorio
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Paso 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16' # Ajusta según tu proyecto.
+
+      # Paso 3: Instalar dependencias
+      - name: Install Dependencies
+        run: npm install
+
+      # Paso 4: Compilar archivos con Peggy y TypeScript
+      - name: Compile Grammar with Peggy
+        run: npm run compile
+
+      - name: Build Project
+        run: npm run build
+
+      # Paso 5: Desplegar en GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
