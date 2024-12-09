@@ -2,44 +2,52 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main # Cambia si usas otra rama principal.
+    branches: 'main'
 
 jobs:
-  build:
+  build_site:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./fortran-peg
     steps:
-      # Paso 1: Clonar el repositorio
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Paso 2: Configurar Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '16' # Ajusta según tu versión de Node.js.
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ./fortran-peg/package-lock.json
 
-      # Paso 3: Instalar dependencias
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
 
-      # Paso 4: Compilar los archivos necesarios
-      - name: Compile Grammar with Peggy
-        run: npm run compile
+      - name: build
+        env:
+          BASE_PATH: '/${{ github.event.repository.name }}'
+        run: |
+          npm run build
 
-      # Paso 5: Compilar el proyecto con TypeScript
-      - name: Build Project
-        run: npm run build
-
-      # Paso 6: Asegurar que el archivo index.html exista en el directorio de publicación
-      # GitHub Pages requiere un index.html para cargar el sitio.
-      - name: Copy index.html to dist
-        run: cp public/index.html dist/
-
-      # Paso 7: Desplegar en GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload Artifacts
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: 'fortran-peg/build/'
+
+  deploy:
+    needs: build_site
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
